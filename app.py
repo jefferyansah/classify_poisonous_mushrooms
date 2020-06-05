@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# 
 """app.py: This is the main python file for this app"""
 
 __author__      = "Jeffery Ansah"
@@ -11,6 +11,7 @@ import numpy as np
 from PIL import Image
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
@@ -18,11 +19,11 @@ from sklearn.metrics import plot_confusion_matrix, plot_roc_curve, plot_precisio
 from sklearn.metrics import precision_score, recall_score
 
 def main():
-    st.title("Mushroom Classification ML App")
-    st.sidebar.title("Binary Classification Web App")
-    st.markdown("This is a one of my Hooby Projects 👨‍💻. The goal of this project is to use the mushroom dataset to classify  Mushrooms are Edible or Poisonous")
+    st.title("Mushroom Classification ML Web App")
+    st.sidebar.title("Classify Mushrooms as Poisonous or Edible")
+    st.markdown("This is one of my Hobby Projects 👨‍💻. The goal of this project is to use the mushroom dataset to classify  Mushrooms as Edible or Poisonous.")
     image = Image.open('mushroom.png')
-    st.image(image, caption='Are your mushrooms edible or poisonous?',  width=10)
+    st.image(image, caption='Are your mushrooms edible or poisonous?')
     st.sidebar.markdown("Are your mushrooms edible or poisonous? 🍄")
 
     @st.cache(persist=True)
@@ -62,8 +63,29 @@ def main():
     x_train, x_test, y_train, y_test = split(df)
 
     st.sidebar.subheader("Choose Classifier")
-    classifier = st.sidebar.selectbox("Classifier", ("Support Vector Machine (SVM)", "Logistic Regression", "Random Forest", "KNN"))
+    classifier = st.sidebar.selectbox("Classifier", ("Support Vector Machine (SVM)", "Logistic Regression", "Random Forest", "K-Nearest Neighbour (KNN)"))
 
+    if classifier == 'K-Nearest Neighbour (KNN)':
+        st.sidebar.subheader("Model Hyperparameters")
+        #choose parameters
+        n_neighbors = st.sidebar.slider("Number of Neighbours", 1, 5, key='neigh_num')
+        algorithm = st.sidebar.selectbox('Select Algorithm used to compute KNN', ('auto', "ball_tree", "kd_tree", 'brute'), key= 'func_weight')
+        weights = st.sidebar.selectbox('Select Weight function for Prediction', ("uniform", "distance"), key= 'func_weight')
+        metrics = st.sidebar.multiselect("What metrics to plot?", ('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
+        
+        if st.sidebar.button("Classify", key='classify'):
+            st.subheader("KNN Results")
+            model = KNeighborsClassifier(n_neighbors = n_neighbors, weights =weights, algorithm = algorithm)
+            model.fit(x_train, y_train)
+            accuracy = model.score(x_test, y_test)
+            y_pred = model.predict(x_test)
+            st.write("Accuracy: ", accuracy.round(2))
+            st.write("Precision: ", precision_score(y_test, y_pred, labels=class_names).round(2))
+            st.write("Recall: ", recall_score(y_test, y_pred, labels=class_names).round(2))
+            plot_metrics(metrics)
+    
+    
+    
     if classifier == 'Support Vector Machine (SVM)':
         st.sidebar.subheader("Model Hyperparameters")
         #choose parameters
@@ -121,7 +143,7 @@ def main():
             plot_metrics(metrics)
 
     if st.sidebar.checkbox("Show raw data", False):
-        st.subheader("Mushroom Data Set (Classification)")
+        st.subheader("Checkout the Mushroom Data Set")
         st.write(df)
         st.markdown("This  Dataset used in this project can found [here](https://archive.ics.uci.edu/ml/datasets/Mushroom)")
 
