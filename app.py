@@ -1,6 +1,14 @@
+#!/usr/bin/env python
+
+"""app.py: This is the main python file for this app"""
+
+__author__      = "Jeffery Ansah"
+
+
 import streamlit as st
 import pandas as pd
 import numpy as np
+from PIL import Image
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -10,9 +18,11 @@ from sklearn.metrics import plot_confusion_matrix, plot_roc_curve, plot_precisio
 from sklearn.metrics import precision_score, recall_score
 
 def main():
-    st.title("Binary Classification Web App")
+    st.title("Mushroom Classification ML App")
     st.sidebar.title("Binary Classification Web App")
-    st.markdown("Are your mushrooms edible or poisonous? 🍄")
+    st.markdown("This is a one of my Hooby Projects 👨‍💻. The goal of this project is to use the mushroom dataset to classify  Mushrooms are Edible or Poisonous")
+    image = Image.open('mushroom.png')
+    st.image(image, caption='Are your mushrooms edible or poisonous?',  width=10)
     st.sidebar.markdown("Are your mushrooms edible or poisonous? 🍄")
 
     @st.cache(persist=True)
@@ -52,7 +62,7 @@ def main():
     x_train, x_test, y_train, y_test = split(df)
 
     st.sidebar.subheader("Choose Classifier")
-    classifier = st.sidebar.selectbox("Classifier", ("Support Vector Machine (SVM)", "Logistic Regression", "Random Forest"))
+    classifier = st.sidebar.selectbox("Classifier", ("Support Vector Machine (SVM)", "Logistic Regression", "Random Forest", "KNN"))
 
     if classifier == 'Support Vector Machine (SVM)':
         st.sidebar.subheader("Model Hyperparameters")
@@ -113,9 +123,7 @@ def main():
     if st.sidebar.checkbox("Show raw data", False):
         st.subheader("Mushroom Data Set (Classification)")
         st.write(df)
-        st.markdown("This [data set](https://archive.ics.uci.edu/ml/datasets/Mushroom) includes descriptions of hypothetical samples corresponding to 23 species of gilled mushrooms "
-        "in the Agaricus and Lepiota Family (pp. 500-525). Each species is identified as definitely edible, definitely poisonous, "
-        "or of unknown edibility and not recommended. This latter class was combined with the poisonous one.")
+        st.markdown("This  Dataset used in this project can found [here](https://archive.ics.uci.edu/ml/datasets/Mushroom)")
 
 if __name__ == '__main__':
     main()
